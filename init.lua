@@ -19,7 +19,15 @@ map("i", "jk", "<Esc>", { silent = true })
 map("v", "<", "<gv")
 map("v", ">", ">gv")
 
+local opts = { noremap = true, silent = true }
+local modes = { "n", "v", "o" }
 
+vim.keymap.set(modes, "j", "h", opts)  -- j = left
+vim.keymap.set(modes, "k", "k", opts)  -- k = up
+vim.keymap.set(modes, "l", "l", opts)  -- l = right
+vim.keymap.set(modes, ",", "j", opts)  -- , = down
+
+vim.opt.clipboard = "unnamedplus"
 -- ------------------------
 -- Explorer
 -- ------------------------
@@ -38,26 +46,17 @@ vim.keymap.set('n', '<leader>ml', function()
 end, { silent = true })
 
 -- Вернуть текущий файл в левый сплит (первую группу)
-vim.keymap.set('n', '<leader>mh', function()
+vim.keymap.set('n', '<leader>mj', function()
   vim.fn['VSCodeNotify']('workbench.action.moveEditorToFirstGroup')
 end, { silent = true })
 
 -- Переключение между сплитами (одинаково в любом режиме)
-map({'n','v','i'}, '<C-h>', function()
+map({'n','v','i'}, '<C-j>', function()
   vim.fn['VSCodeNotify']('workbench.action.focusLeftGroup')
 end, { silent = true })
 
 map({'n','v','i'}, '<C-l>', function()
   vim.fn['VSCodeNotify']('workbench.action.focusRightGroup')
-end, { silent = true })
-
--- Телепортация на N строк
-map({'n','v','i'}, '<C-j>', function()
-  vim.cmd('normal! 20j')
-end, { silent = true })
-
-map({'n','v','i'}, '<C-k>', function()
-  vim.cmd('normal! 20k')
 end, { silent = true })
 
 -- ------------------------
@@ -68,15 +67,9 @@ map('n', '<leader>l', function()
   vim.fn['VSCodeNotify']('workbench.action.nextEditor')
 end, { silent = true })
 -- Предыдущий открытый документ
-map('n', '<leader>h', function()
+map('n', '<leader>j', function()
   vim.fn['VSCodeNotify']('workbench.action.previousEditor')
 end, { silent = true })
-
-
-
-
-
-
 
 -- ------------------------
 -- Lazy.nvim bootstrap
