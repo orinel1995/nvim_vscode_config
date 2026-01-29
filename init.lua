@@ -37,12 +37,12 @@ vim.keymap.set('n', '<leader>ml', function()
 end, { silent = true })
 
 -- Вернуть текущий файл в левый сплит (первую группу)
-vim.keymap.set('n', '<leader>mj', function()
+vim.keymap.set('n', '<leader>mh', function()
   vim.fn['VSCodeNotify']('workbench.action.moveEditorToFirstGroup')
 end, { silent = true })
 
 -- Переключение между сплитами (одинаково в любом режиме)
-map({'n','v','i'}, '<C-j>', function()
+map({'n','v','i'}, '<C-h>', function()
   vim.fn['VSCodeNotify']('workbench.action.focusLeftGroup')
 end, { silent = true })
 
@@ -56,7 +56,7 @@ map('n', '<leader>l', function()
 end, { silent = true })
 
 -- Предыдущий открытый документ
-map('n', '<leader>j', function()
+map('n', '<leader>h', function()
   vim.fn['VSCodeNotify']('workbench.action.previousEditor')
 end, { silent = true })
 
