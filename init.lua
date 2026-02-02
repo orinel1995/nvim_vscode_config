@@ -1,126 +1,121 @@
-
--- ======================================
--- VSCode Neovim compatible init.lua
--- Minimal plugin loading for conflict-free VSCode
--- Retains all your config requires
--- ======================================
+-- orinel nvim config
 
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
 vim.opt.clipboard = "unnamedplus"
 
-local vim = vim
-
--- Keymaps
-
 local map = vim.keymap.set
-local opts = { noremap = true, silent = true }
-local modes = { "n", "v", "o" }
 
-map("i", "jk", "<Esc>", { silent = true })
+map("i", "jk", "<esc>", { silent = true })
 map("v", "<", "<gv")
 map("v", ">", ">gv")
 
--- Explorer
-
--- Переключение на файловый менеджер (Explorer)
 map('n', '<leader>e', function()
-  vim.fn['VSCodeNotify']('workbench.view.explorer')
+  vim.fn['vscodenotify']('workbench.view.explorer')
 end, { silent = true })
 
--- Дальше пробел для предпросмотра/enter для открытия и перехода 
--- в режим редактирования
-
--- Переместить текущий файл в правый сплит
-vim.keymap.set('n', '<leader>ml', function()
-  vim.fn['VSCodeNotify']('workbench.action.moveEditorToNextGroup')
+map('n', '<leader>ml', function()
+  vim.fn['vscodenotify']('workbench.action.moveeditortonextgroup')
 end, { silent = true })
 
--- Вернуть текущий файл в левый сплит (первую группу)
-vim.keymap.set('n', '<leader>mh', function()
-  vim.fn['VSCodeNotify']('workbench.action.moveEditorToFirstGroup')
+map('n', '<leader>mh', function()
+  vim.fn['vscodenotify']('workbench.action.moveeditortofirstgroup')
 end, { silent = true })
 
--- Переключение между сплитами (одинаково в любом режиме)
-map({'n','v','i'}, '<C-h>', function()
-  vim.fn['VSCodeNotify']('workbench.action.focusLeftGroup')
+map({'n','v','i'}, '<c-h>', function()
+  vim.fn['vscodenotify']('workbench.action.focusleftgroup')
 end, { silent = true })
 
-map({'n','v','i'}, '<C-l>', function()
-  vim.fn['VSCodeNotify']('workbench.action.focusRightGroup')
+map({'n','v','i'}, '<c-l>', function()
+  vim.fn['vscodenotify']('workbench.action.focusrightgroup')
 end, { silent = true })
 
--- Следующий открытый документ
 map('n', '<leader>l', function()
-  vim.fn['VSCodeNotify']('workbench.action.nextEditor')
+  vim.fn['vscodenotify']('workbench.action.nexteditor')
 end, { silent = true })
 
--- Предыдущий открытый документ
 map('n', '<leader>h', function()
-  vim.fn['VSCodeNotify']('workbench.action.previousEditor')
+  vim.fn['vscodenotify']('workbench.action.previouseditor')
 end, { silent = true })
 
--- Lazy.nvim bootstrap
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.loop.fs_stat(lazypath) then
-	vim.fn.system({
-		"git",
-		"clone",
-		"--filter=blob:none",
-		"https://github.com/folke/lazy.nvim.git",
-		"--branch=stable",
-		lazypath,
-	})
+  vim.fn.system({
+    "git", "clone", "--filter=blob:none",
+    "https://github.com/folke/lazy.nvim.git",
+    "--branch=stable", lazypath,
+  })
 end
+
 vim.opt.rtp:prepend(lazypath)
 
--- Plugin setup
-
 require("lazy").setup({
-	-- Core non-conflicting plugins
-	{ "windwp/nvim-autopairs", config = function() require("nvim-autopairs").setup({}) end },
-	{ "numToStr/Comment.nvim", config = function() require("Comment").setup({}) end },
-	{ 
-		"kylechui/nvim-surround", 
-		config = function()
-			require("nvim-surround").setup({
-				keymaps = {
-					visual = "<leader>s",
-					normal = "ys",
-					normal_cur = "yss",
-					delete = "ds",
-					change = "cs",
-				},
-			})
-		end
-	},
-
-	-- Color schemes
-	{ "catppuccin/nvim", as = "catppuccin" },
-	{ "ellisonleao/gruvbox.nvim", as = "gruvbox" },
-	{ "uZer/pywal16.nvim", as = "pywal16" },
-
-	-- Keep plugin requires for configs that don't conflict with VSCode UI
-	{ "lewis6991/gitsigns.nvim" },          -- git
-	{ "ron-rs/ron.vim" },                   -- ron syntax
-	{ "MeanderingProgrammer/render-markdown.nvim" }, -- markdown rendering
-	{ "numToStr/FTerm.nvim" },              -- floating terminal
-	{ "nvim-treesitter/nvim-treesitter" }, -- syntax highlighting
-	{ "folke/twilight.nvim" },              -- dim surrounding
+  { "windwp/nvim-autopairs", event = "insertenter", config = function()
+      require("nvim-autopairs").setup({})
+    end
+  },
+  { "numtostr/comment.nvim", keys = {"gc", "gb"}, config = function()
+      require("Comment").setup({})
+    end
+  },
+  { "kylechui/nvim-surround", config = function()
+      require("nvim-surround").setup({
+        keymaps = {
+          visual = "<leader>s",
+          normal = "ys",
+          normal_cur = "yss",
+          delete = "ds",
+          change = "cs",
+        },
+      })
+    end
+  },
+  { "lewis6991/gitsigns.nvim" },
+  { "numtostr/fterm.nvim" },
+  { "rebelot/kanagawa.nvim" },
+  { "folke/twilight.nvim", event = "bufreadpost", config = function()
+      require("twilight").setup({})
+    end
+  },
+  { "stevearc/conform.nvim", cmd = { "Conform", "Format" }, ft = {"lua","python","sql","javascript","typescript","json"}, config = function()
+      require("conform").setup({
+        formatters_by_ft = {
+          lua = { "stylua" },
+          python = { "black" },
+          javascript = { "prettier" },
+          typescript = { "prettier" },
+          sql = { "sqlformat" },
+        },
+        format_on_save = true,
+      })
+      vim.keymap.set("n", "<leader>cf", function()
+        require("conform").format({ async = true })
+      end, { noremap = true, silent = true })
+    end
+  },
 })
-
--- Retain config requires
 
 require("config.options")
 
 vim.defer_fn(function()
-	require("plugins.autopairs")
-	require("plugins.fterm")
-	require("plugins.treesitter")
-	require("plugins.twilight")
+  require("plugins.autopairs")
+  require("plugins.fterm")
+  require("plugins.twilight")
 end, 100)
 
--- Load theme last
-if load_theme then
-	load_theme()
-end
+require("kanagawa").setup({
+  commentstyle = { italic = false },
+  colors = {
+    theme = { comment = "#ff9e3b" },
+  },
+  overrides = function(colors)
+    return {
+      ["@variable"]  = { fg = colors.palette.fujiwhite },
+      ["@constant"]  = { fg = colors.palette.wavered },
+      ["@attribute"] = { fg = colors.palette.samuraiblue },
+      ["@comment"]   = { fg = "#ff9e3b", italic = false },
+    }
+  end,
+})
+
+vim.cmd("colorscheme kanagawa")

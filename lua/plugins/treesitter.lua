@@ -1,46 +1,49 @@
--- plugins/treesitter.lua
-local ok, tsconfigs = pcall(require, "nvim-treesitter.configs")
-if not ok then
-    -- откладываем на 100ms после запуска
-    vim.defer_fn(function()
-        local ok2, tsconfigs2 = pcall(require, "nvim-treesitter.configs")
-        if ok2 then
-            tsconfigs2.setup {
-                ensure_installed = { "bash", "c", "css", "cpp", "go", "html", "java", "javascript", "json", "lua", "markdown", "markdown_inline", "python", "rust", "tsx", "typescript" },
-                highlight = {
-                    enable = true,
-                    additional_vim_regex_highlighting = false,
-                },
-                incremental_selection = {
-                    enable = true,
-                    keymaps = {
-                        init_selection = "gnn",
-                        node_incremental = "grn",
-                        scope_incremental = "grc",
-                        node_decremental = "grm",
-                    },
-                },
-            }
-        end
-    end, 100)
-    return
-end
 
--- Если require сразу сработал
-tsconfigs.setup {
-    ensure_installed = { "bash", "c", "css", "cpp", "go", "html", "java", "javascript", "json", "lua", "markdown", "markdown_inline", "python", "rust", "tsx", "typescript" },
-    highlight = {
-        enable = true,
-        additional_vim_regex_highlighting = false,
-    },
+local ok, tsconfigs = pcall(require, "nvim-treesitter.configs")
+if ok then
+  tsconfigs.setup {
+    ensure_installed = { "bash", "c", "cpp", "lua", "python", "javascript", "typescript", "json", "html", "css", "go", "rust", "tsx", "markdown", "markdown_inline" },
+    highlight = { enable = true },
     incremental_selection = {
-        enable = true,
-        keymaps = {
-            init_selection = "gnn",
-            node_incremental = "grn",
-            scope_incremental = "grc",
-            node_decremental = "grm",
-        },
+      enable = true,
+      keymaps = {
+        init_selection = "gnn",
+        node_incremental = "grn",
+        scope_incremental = "grc",
+        node_decremental = "grm",
+      },
     },
-}
+    textobjects = {
+      select = {
+        enable = true,
+        lookahead = true,
+        keymaps = {
+          ["af"] = "@function.outer",
+          ["if"] = "@function.inner",
+          ["ac"] = "@class.outer",
+          ["ic"] = "@class.inner",
+          ["ap"] = "@parameter.outer",
+          ["ip"] = "@parameter.inner",
+          ["ab"] = "@block.outer",
+          ["ib"] = "@block.inner",
+          ["as"] = "@statement.outer",
+          ["is"] = "@statement.inner",
+        },
+      },
+      move = {
+        enable = true,
+        set_jumps = true,
+        goto_next_start = { ["]m"] = "@function.outer", ["]]"] = "@class.outer" },
+        goto_next_end   = { ["]M"] = "@function.outer", ["]["] = "@class.outer" },
+        goto_previous_start = { ["[m"] = "@function.outer", ["[["] = "@class.outer" },
+        goto_previous_end   = { ["[M"] = "@function.outer", ["[]"] = "@class.outer" },
+      },
+      swap = {
+        enable = true,
+        swap_next = { ["<leader>xp"] = "@parameter.inner" },
+        swap_previous = { ["<leader>xP"] = "@parameter.inner" }
+      },
+    },
+  }
+end
 
