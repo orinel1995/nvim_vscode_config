@@ -11,31 +11,31 @@ map("v", "<", "<gv")
 map("v", ">", ">gv")
 
 map('n', '<leader>e', function()
-  vim.fn['vscodenotify']('workbench.view.explorer')
+  vim.fn['VSCodeNotify']('workbench.view.explorer')
 end, { silent = true })
 
 map('n', '<leader>ml', function()
-  vim.fn['vscodenotify']('workbench.action.moveeditortonextgroup')
+  vim.fn['VSCodeNotify']('workbench.action.moveEditorToNextGroup')
 end, { silent = true })
 
 map('n', '<leader>mh', function()
-  vim.fn['vscodenotify']('workbench.action.moveeditortofirstgroup')
+  vim.fn['VSCodeNotify']('workbench.action.moveEditorToPreviousGroup')
 end, { silent = true })
 
 map({'n','v','i'}, '<c-h>', function()
-  vim.fn['vscodenotify']('workbench.action.focusleftgroup')
+  vim.fn['VSCodeNotify']('workbench.action.focusLeftGroup')
 end, { silent = true })
 
 map({'n','v','i'}, '<c-l>', function()
-  vim.fn['vscodenotify']('workbench.action.focusrightgroup')
+  vim.fn['VSCodeNotify']('workbench.action.focusRightGroup')
 end, { silent = true })
 
 map('n', '<leader>l', function()
-  vim.fn['vscodenotify']('workbench.action.nexteditor')
+  vim.fn['VSCodeNotify']('workbench.action.nextEditor')
 end, { silent = true })
 
 map('n', '<leader>h', function()
-  vim.fn['vscodenotify']('workbench.action.previouseditor')
+  vim.fn['VSCodeNotify']('workbench.action.previousEditor')
 end, { silent = true })
 
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
