@@ -10,6 +10,20 @@ map("i", "jk", "<esc>", { silent = true })
 map("v", "<", "<gv")
 map("v", ">", ">gv")
 
+local im_select_path = "C:/im-select/im-select.exe"
+local en_us_layout_id = "1033"
+
+local function switch_to_english_layout()
+  if vim.fn.executable(im_select_path) == 1 then
+    vim.fn.jobstart({ im_select_path, en_us_layout_id }, { detach = true })
+  end
+end
+
+vim.api.nvim_create_autocmd("ModeChanged", {
+  pattern = { "c:*", "i:*" },
+  callback = switch_to_english_layout,
+})
+
 map('n', '<leader>e', function()
   vim.fn['VSCodeNotify']('workbench.view.explorer')
 end, { silent = true })
