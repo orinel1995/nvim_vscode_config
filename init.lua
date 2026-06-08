@@ -48,12 +48,32 @@ local function switch_to_english_layout()
   vim.fn.system({ im_select_path, en_us_layout_id })
 end
 
+local last_layout_switch = 0
+local function switch_to_english_layout_throttled()
+  local now = vim.loop.hrtime() / 1000000
+  if now - last_layout_switch < 300 then
+    return
+  end
+
+  last_layout_switch = now
+  switch_to_english_layout()
+end
+
 vim.api.nvim_create_autocmd({ "InsertLeave", "CmdlineLeave" }, {
   callback = switch_to_english_layout,
 })
 
 if not vim.g.vscode then
   switch_to_english_layout()
+else
+  vim.api.nvim_create_autocmd({ "FocusGained", "BufEnter", "WinEnter", "CursorMoved" }, {
+    callback = function()
+      local mode = vim.api.nvim_get_mode().mode
+      if mode ~= "i" and mode ~= "c" then
+        switch_to_english_layout_throttled()
+      end
+    end,
+  })
 end
 
 if vim.g.vscode then
