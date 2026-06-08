@@ -1,5 +1,17 @@
 -- orinel nvim config
 
+vim.g.start_time = vim.fn.reltime()
+
+local source = debug.getinfo(1, "S").source
+local init_file = source:match("^@(.+)$") or vim.fn.expand("<sfile>:p")
+local config_root = vim.fn.fnamemodify(init_file, ":p:h")
+vim.opt.runtimepath:prepend(config_root)
+package.path = table.concat({
+  config_root .. "/lua/?.lua",
+  config_root .. "/lua/?/init.lua",
+  package.path,
+}, ";")
+
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
 vim.opt.clipboard = "unnamedplus"
@@ -10,47 +22,69 @@ map("i", "jk", "<esc>", { silent = true })
 map("v", "<", "<gv")
 map("v", ">", ">gv")
 
-local im_select_path = "C:/im-select/im-select.exe"
+local im_select_candidates = {
+  "C:/im-select/im-select.exe",
+  "im-select.exe",
+}
+if vim.env.IM_SELECT_PATH and vim.env.IM_SELECT_PATH ~= "" then
+  table.insert(im_select_candidates, 1, vim.env.IM_SELECT_PATH)
+end
 local en_us_layout_id = "1033"
 
-local function switch_to_english_layout()
-  if vim.fn.executable(im_select_path) == 1 then
-    vim.fn.jobstart({ im_select_path, en_us_layout_id }, { detach = true })
+local function find_executable(candidates)
+  for _, candidate in ipairs(candidates) do
+    if candidate and candidate ~= "" and vim.fn.executable(candidate) == 1 then
+      return candidate
+    end
   end
 end
 
-vim.api.nvim_create_autocmd("ModeChanged", {
-  pattern = { "c:*", "i:*" },
+local function switch_to_english_layout()
+  local im_select_path = find_executable(im_select_candidates)
+  if not im_select_path then
+    return
+  end
+
+  vim.fn.system({ im_select_path, en_us_layout_id })
+end
+
+vim.api.nvim_create_autocmd({ "InsertLeave", "CmdlineLeave" }, {
   callback = switch_to_english_layout,
 })
 
-map('n', '<leader>e', function()
-  vim.fn['VSCodeNotify']('workbench.view.explorer')
-end, { silent = true })
+if not vim.g.vscode then
+  switch_to_english_layout()
+end
 
-map('n', '<leader>ml', function()
-  vim.fn['VSCodeNotify']('workbench.action.moveEditorToNextGroup')
-end, { silent = true })
+if vim.g.vscode then
+  map('n', '<leader>e', function()
+    vim.fn['VSCodeNotify']('workbench.view.explorer')
+  end, { silent = true })
 
-map('n', '<leader>mh', function()
-  vim.fn['VSCodeNotify']('workbench.action.moveEditorToPreviousGroup')
-end, { silent = true })
+  map('n', '<leader>ml', function()
+    vim.fn['VSCodeNotify']('workbench.action.moveEditorToNextGroup')
+  end, { silent = true })
 
-map({'n','v','i'}, '<c-h>', function()
-  vim.fn['VSCodeNotify']('workbench.action.focusLeftGroup')
-end, { silent = true })
+  map('n', '<leader>mh', function()
+    vim.fn['VSCodeNotify']('workbench.action.moveEditorToPreviousGroup')
+  end, { silent = true })
 
-map({'n','v','i'}, '<c-l>', function()
-  vim.fn['VSCodeNotify']('workbench.action.focusRightGroup')
-end, { silent = true })
+  map({'n','v','i'}, '<c-h>', function()
+    vim.fn['VSCodeNotify']('workbench.action.focusLeftGroup')
+  end, { silent = true })
 
-map('n', '<leader>l', function()
-  vim.fn['VSCodeNotify']('workbench.action.nextEditor')
-end, { silent = true })
+  map({'n','v','i'}, '<c-l>', function()
+    vim.fn['VSCodeNotify']('workbench.action.focusRightGroup')
+  end, { silent = true })
 
-map('n', '<leader>h', function()
-  vim.fn['VSCodeNotify']('workbench.action.previousEditor')
-end, { silent = true })
+  map('n', '<leader>l', function()
+    vim.fn['VSCodeNotify']('workbench.action.nextEditor')
+  end, { silent = true })
+
+  map('n', '<leader>h', function()
+    vim.fn['VSCodeNotify']('workbench.action.previousEditor')
+  end, { silent = true })
+end
 
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.loop.fs_stat(lazypath) then
@@ -73,14 +107,9 @@ require("lazy").setup({
     end
   },
   { "kylechui/nvim-surround", config = function()
-      require("nvim-surround").setup({
-        keymaps = {
-          visual = "<leader>s",
-          normal = "ys",
-          normal_cur = "yss",
-          delete = "ds",
-          change = "cs",
-        },
+      require("nvim-surround").setup({})
+      vim.keymap.set("x", "<leader>s", "<Plug>(nvim-surround-visual)", {
+        desc = "Add a surrounding pair around a visual selection",
       })
     end
   },
